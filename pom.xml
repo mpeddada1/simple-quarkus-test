@@ -34,7 +34,7 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>libraries-bom</artifactId>
-        <version>25.4.0</version>
+        <version>25.1.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -51,6 +51,11 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>native-image-support</artifactId>
+      <version>0.14.1</version>
+    </dependency>
   <dependency>
     <groupId>com.google.cloud</groupId>
     <artifactId>google-cloud-pubsub</artifactId>
@@ -58,6 +63,11 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-grpc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-junit5</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
@@ -82,40 +92,36 @@
   <profiles>
     <profile>
       <id>native</id>
-
+      <activation>
+        <property>
+          <name>native</name>
+        </property>
+      </activation>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.22.0</version>
-          </plugin>
-          <plugin>
-            <groupId>org.graalvm.buildtools</groupId>
-            <artifactId>native-maven-plugin</artifactId>
-            <version>0.9.11</version> <!-- or newer version -->
-            <extensions>true</extensions>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>3.0.0-M6</version>
             <executions>
               <execution>
-                <id>build-native</id>
                 <goals>
-                  <goal>build</goal>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
                 </goals>
-                <phase>package</phase>
+                <configuration>
+                  <systemPropertyVariables>
+                    <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+                    <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                  </systemPropertyVariables>
+                </configuration>
               </execution>
             </executions>
-            <configuration>
-              <mainClass>com.example.QuarkusSample</mainClass>
-              <buildArgs>
-                <buildArg>--no-fallback</buildArg>
-                <buildArg>--no-server</buildArg>
-              </buildArgs>
-            </configuration>
           </plugin>
         </plugins>
       </build>
-
-
+      <properties>
+        <quarkus.package.type>native</quarkus.package.type>
+      </properties>
     </profile>
   </profiles>
 </project>
