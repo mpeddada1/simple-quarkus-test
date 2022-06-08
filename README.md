@@ -1,5 +1,7 @@
 # simple-quarkus-test
 
+**Note: the reproducer code uses libraries-bom 25.4.0 and doesn't include the native-image-support dependency**
+
 Call the following:
 
 1) `mvn clean install -DskipTests`
