@@ -55,3 +55,11 @@ Fatal error: org.graalvm.compiler.debug.GraalError: com.oracle.graal.pointsto.co
 ```
 
 We are explicitly initializing the slf4jLoggerFactory at run-time in https://github.com/googleapis/gax-java/blob/0f0996c7c4bea2af3a01979fd3e21cfb6a96d565/gax-grpc/src/main/resources/META-INF/native-image/com.google.api/gax-grpc/native-image.properties#L6 but quarkus seems to be causing it to be initalized at build-time.
+
+
+To experiment with this hypothesis further, the following was done:
+1) Downgraded to libraries bom version that didn't include any native image configs
+2) Used the latest native-image-support-java dep (which should be the same as the configs in the latest libraries bom).
+3) Explicitly added a native-image.properties which included `--initialize-at-run-time=...Slf4jLoggerFactory`.
+4) Saw the the same error as above.
+5) Removing the `-initialize-at-build-time` config results in a successful build.
